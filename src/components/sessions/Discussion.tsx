@@ -32,6 +32,16 @@ interface DiscussionProps {
   isLocked?: boolean;
 }
 
+/**
+ * Render a discussion thread UI that supports creating new posts and replying to existing posts.
+ *
+ * Displays a textarea and Post button for new top-level posts, a per-post Reply flow that reveals a reply textarea with Reply and Cancel actions, and lists posts with their replies, avatars, author names, content, and relative timestamps. When `isLocked` is true, shows a locked message instead of the discussion UI.
+ *
+ * @param posts - Array of posts to display in the discussion.
+ * @param onPost - Callback invoked when submitting content. Called as `onPost(content)` for top-level posts or `onPost(content, parentId)` for replies.
+ * @param isLocked - If true, the discussion is replaced by a locked state message.
+ * @returns The Discussion component JSX.
+ */
 export function Discussion({
   posts,
   onPost,

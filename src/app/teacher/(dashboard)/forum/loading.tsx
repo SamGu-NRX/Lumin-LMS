@@ -2,6 +2,11 @@
 
 import { motion } from "framer-motion"
 
+/**
+ * Renders a multi-section skeleton UI used while forum content is loading.
+ *
+ * @returns A React element containing animated placeholders for a header, filter/sorter rows, and a responsive grid of six card skeletons.
+ */
 export default function LoadingSkeleton() {
   const skeletonItems = Array.from({ length: 6 }, (_, i) => i)
 

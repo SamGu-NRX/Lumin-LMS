@@ -9,6 +9,14 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
 import { User, Bell, Lock, Sliders } from 'lucide-react'
 
+/**
+ * Renders the Settings page with sections for profile, notifications, security, and preferences.
+ *
+ * The component manages local state for profile information, notification toggles, security options,
+ * and display preferences, and provides a form handler that logs profile updates.
+ *
+ * @returns The Settings page as a React element containing profile, notification, security, and preference controls.
+ */
 export default function SettingsPage() {
   const [profile, setProfile] = useState({
     name: 'John Doe',
@@ -168,4 +176,3 @@ export default function SettingsPage() {
     </div>
   )
 }
-

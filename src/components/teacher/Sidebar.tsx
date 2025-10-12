@@ -11,6 +11,11 @@ import {
   Settings
 } from 'lucide-react';
 
+/**
+ * Renders a fixed vertical sidebar with navigation links for teacher pages.
+ *
+ * @returns A JSX element containing a vertical navigation with links to the teacher dashboard, courses, assignments, forum, students, certificates, and settings.
+ */
 export function Sidebar() {
   return (
     <div className="absolute inset-y-0 left-0 w-64 -translate-x-full transform space-y-6 bg-white px-2 py-7 transition duration-200 ease-in-out md:relative md:translate-x-0">

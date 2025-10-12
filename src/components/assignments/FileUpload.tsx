@@ -13,6 +13,17 @@ interface FileUploadProps {
   isSubmitting?: boolean;
 }
 
+/**
+ * A file upload UI that supports drag-and-drop and click-to-browse with validation and simulated upload progress.
+ *
+ * Validates selected files against `maxSize` (MB) and `acceptedTypes` (file extensions); on a successful validation it calls `onFileSelect`, shows an upload progress indicator that increments to 100%, and displays any validation error messages.
+ *
+ * @param onFileSelect - Callback invoked with the validated `File` when the user selects or drops a file.
+ * @param maxSize - Maximum allowed file size in megabytes. Defaults to `10`.
+ * @param acceptedTypes - Array of allowed file extensions (including the leading dot), e.g. `[".pdf", ".doc"]`. Defaults to `[".pdf", ".doc", ".docx"]`.
+ * @param isSubmitting - When `true`, disables user actions that would change the selected file. Defaults to `false`.
+ * @returns The rendered FileUpload React component element.
+ */
 export function FileUpload({
   onFileSelect,
   maxSize = 10,

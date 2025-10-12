@@ -24,6 +24,16 @@ interface Student {
   lastActive: Date;
 }
 
+/**
+ * Renders a searchable students management UI with per-student status toggles.
+ *
+ * The component maintains local state for the student list and a search query,
+ * filters students by name or email (case-insensitive), displays student details
+ * in a table, and lets the user toggle each student's status between "active"
+ * and "inactive".
+ *
+ * @returns A JSX element rendering the students management interface: a search input, a table of filtered students (name, email, progress, status, last active), and action buttons to toggle status.
+ */
 export function StudentsManager() {
   const [students, setStudents] = React.useState<Student[]>([]);
   const [searchQuery, setSearchQuery] = React.useState("");

@@ -2,6 +2,11 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 
+/**
+ * Renders a placeholder skeleton layout for the dashboard UI.
+ *
+ * @returns A JSX element containing skeleton placeholders for a header (title and actions), a responsive grid of four tiles, and a large content block.
+ */
 export function DashboardSkeleton() {
   return (
     <div className="container mx-auto p-6 space-y-6">

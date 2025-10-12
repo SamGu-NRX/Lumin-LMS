@@ -33,6 +33,13 @@ interface Submission {
   feedback?: string;
 }
 
+/**
+ * Renders an interactive submissions management UI for viewing, filtering, reviewing, and grading student submissions.
+ *
+ * The component maintains local state for submissions, a selected submission for in-place review, and a status filter. Selecting a submission opens a review panel where grade and feedback can be edited; saving applies the grade and feedback to the submission, sets its status to `graded`, and closes the review panel.
+ *
+ * @returns A React element that displays the submissions table, filter control, and an optional review panel for the selected submission.
+ */
 export function SubmissionsManager() {
   const [submissions, setSubmissions] = React.useState<Submission[]>([]);
   const [selectedSubmission, setSelectedSubmission] = React.useState<Submission | null>(null);

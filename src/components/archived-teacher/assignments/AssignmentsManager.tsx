@@ -38,6 +38,13 @@ interface Assignment {
   questions: Question[];
 }
 
+/**
+ * Renders a client-side UI for creating, editing, deleting, publishing, and organizing assignments and their questions.
+ *
+ * The component exposes forms and lists to manage assignment fields (title, instructions, type, due date, max score, publish state), a question editor with options and correctness flags, and a drag-and-drop scaffold for question ordering. State is kept locally for assignments, the currently editing assignment, and the currently editing question.
+ *
+ * @returns The React element tree for the AssignmentsManager UI.
+ */
 export function AssignmentsManager() {
   const [assignments, setAssignments] = React.useState<Assignment[]>([]);
   const [editingAssignment, setEditingAssignment] = React.useState<Assignment | null>(null);

@@ -2,6 +2,13 @@
 
 import { motion } from "framer-motion"
 
+/**
+ * Render a responsive loading skeleton for the courses dashboard with subtle staggered fade-in animations.
+ *
+ * Renders a title bar placeholder, filter controls placeholders, and a responsive grid of six animated skeleton cards to indicate loading state.
+ *
+ * @returns A JSX element containing the loading skeleton markup
+ */
 export default function LoadingSkeleton() {
   // Example skeleton with subtle animation
   return (

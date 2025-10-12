@@ -6,9 +6,9 @@ import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**
- * This loading skeleton is displayed while data is being fetched
- * on the server side. It approximates the actual Certificates
- * page layout for a smooth transition.
+ * Render a skeleton UI that approximates the Certificates page while certificate data is loading.
+ *
+ * @returns A JSX element containing the loading skeleton layout used on the Certificates page.
  */
 export default function LoadingSkeleton() {
   return (
@@ -72,7 +72,9 @@ export default function LoadingSkeleton() {
 }
 
 /**
- * Represents how each certificate card might look in skeleton form.
+ * Render a motion-animated skeleton placeholder for a single certificate card used while data is loading.
+ *
+ * @returns A React element representing the certificate card skeleton UI
  */
 function SkeletonCertificateCard() {
   return (

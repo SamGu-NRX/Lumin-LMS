@@ -19,6 +19,13 @@ interface Session {
   sequenceOrder: number;
 }
 
+/**
+ * Renders a client-side UI for creating, editing, reordering, publishing, and deleting sessions with drag-and-drop support.
+ *
+ * The UI includes a header with an "Add Session" action, a draggable list of session cards that update their `sequenceOrder` on reorder, per-session publish toggles, edit and delete actions, and a conditional editing panel for creating or modifying a session.
+ *
+ * @returns The rendered JSX for the sessions management interface (header, draggable session list, and editing panel when active).
+ */
 export function SessionsManager() {
   const [sessions, setSessions] = React.useState<Session[]>([]);
   const [editingSession, setEditingSession] = React.useState<Session | null>(null);

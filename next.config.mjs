@@ -25,6 +25,16 @@ const nextConfig = {
 
 mergeConfig(nextConfig, userConfig);
 
+/**
+ * Merge a user-supplied Next.js configuration into a base Next.js config object.
+ *
+ * Shallowly merges top-level keys: when a key in both configs is an object (and not an array),
+ * its properties are merged with `userConfig` taking precedence; otherwise the key is replaced.
+ * This function mutates `nextConfig` in place.
+ *
+ * @param {Object} nextConfig - The base Next.js configuration object to be modified.
+ * @param {Object|undefined|null} userConfig - The user-provided configuration overrides; if falsy, no changes are made.
+ */
 function mergeConfig(nextConfig, userConfig) {
   if (!userConfig) {
     return;

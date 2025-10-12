@@ -4,6 +4,11 @@ import { useState } from 'react'
 import { Bell, User, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
+/**
+ * Renders the Teacher Dashboard header with a title, a notifications toggle, and a user menu button.
+ *
+ * @returns The header JSX element containing the dashboard title, a bell button that shows a notifications dropdown, and a user avatar button.
+ */
 export function Header() {
   const [showNotifications, setShowNotifications] = useState(false)
 
@@ -55,4 +60,3 @@ export function Header() {
     </header>
   )
 }
-

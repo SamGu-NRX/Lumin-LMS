@@ -2,6 +2,11 @@ import { db } from '@/lib/prisma';
 import { createClient } from '@/lib/supabase/server';
 import { Assignment } from '..';
 
+/**
+ * Fetches assignments ordered by date and returns them formatted for the UI.
+ *
+ * @returns An array of assignment objects with fields: `id`, `title`, `content`, `author`, `date` (formatted as `YYYY-MM-DD`), `course`, `isFlagged`, and `isLocked`.
+ */
 export async function getAssignments() {
   // Example: Using a supabase client for session or user checks
   const supabase = await createClient();

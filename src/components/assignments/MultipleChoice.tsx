@@ -22,6 +22,17 @@ interface MultipleChoiceProps {
   isSubmitting?: boolean;
 }
 
+/**
+ * Render a paginated multiple-choice questionnaire with progress and navigation.
+ *
+ * Displays one question at a time, allows selecting an option per question, navigating between questions,
+ * and submitting the collected answers when all questions have been answered.
+ *
+ * @param questions - Array of questions where each question includes an `id`, `text`, and `options` (each option has an `id` and `text`).
+ * @param onSubmit - Callback invoked with a record mapping `questionId` to the selected `optionId` when the user submits.
+ * @param isSubmitting - Optional flag that, when true, disables navigation and action buttons to prevent interaction during submission.
+ * @returns The rendered multiple-choice UI as a JSX element.
+ */
 export function MultipleChoice({
   questions,
   onSubmit,

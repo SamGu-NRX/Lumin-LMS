@@ -22,6 +22,16 @@ interface ExitTicketProps {
   onComplete: (score: number) => void;
 }
 
+/**
+ * Renders an interactive exit-ticket quiz UI that lets a user select one option per question,
+ * submit their answers, see per-option correctness indicators, and view a final percentage score.
+ *
+ * The component disables further changes after submission and invokes `onComplete` with the computed score.
+ *
+ * @param questions - Array of questions; each question contains an `id`, `text`, and `options` (each option has `id`, `text`, and `isCorrect`)
+ * @param onComplete - Callback invoked once when the user submits the quiz with the final score as a percentage
+ * @returns A React element containing the exit ticket UI
+ */
 export function ExitTicket({ questions, onComplete }: ExitTicketProps) {
   const [answers, setAnswers] = React.useState<Record<string, string>>({});
   const [submitted, setSubmitted] = React.useState(false);

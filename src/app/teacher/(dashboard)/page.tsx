@@ -3,6 +3,13 @@ import { Button } from '@/components/ui/button';
 import { BarChart, Users, FileText, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
+/**
+ * Render the teacher dashboard with navigation cards, recent activity, and quick actions.
+ *
+ * Renders a responsive grid of primary navigation cards (Course Analytics, Students, Assignments, Forum) that link to teacher routes, plus a two-column section containing a "Recent Activity" list and a "Quick Actions" panel with buttons for creating assignments, viewing student progress, and generating course reports.
+ *
+ * @returns A JSX element containing the complete teacher dashboard layout
+ */
 export default function TeacherDashboard() {
   return (
     <div className="space-y-6">

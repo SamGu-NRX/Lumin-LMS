@@ -11,6 +11,13 @@ interface ExitTicketQuestion {
   correctAnswer?: number;
 }
 
+/**
+ * Imports session-content.json into the database, creating the course, sessions, exit tickets, and resources.
+ *
+ * Reads session data from ../../data/session-content.json, upserts a single "AI Innovate Scholars" course,
+ * creates sessions linked to that course, creates associated exit tickets and their questions when present,
+ * and creates associated resource records. Logs progress for each imported session.
+ */
 async function main() {
   // 1) Upsert (create if needed) the single "AI Innovate Scholars" course
   const COURSE_ID = randomUUID();

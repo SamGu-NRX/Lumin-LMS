@@ -12,6 +12,14 @@ export const metadata: Metadata = {
   description: "Manage students in the AI Bootcamp or other courses",
 }
 
+/**
+ * Server-side page component that loads students and renders the Students page UI.
+ *
+ * Renders a Suspense boundary with a loading skeleton fallback while the students data is prepared,
+ * then renders StudentsClient with the fetched students provided as `serverStudents`.
+ *
+ * @returns The page's React element tree displaying the students; shows a skeleton fallback while data is loading.
+ */
 export default async function StudentsPage() {
   // Fetch your students data on the server side (SSR)
   const students = await getStudents()

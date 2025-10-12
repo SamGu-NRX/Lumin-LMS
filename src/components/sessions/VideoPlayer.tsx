@@ -11,6 +11,13 @@ interface VideoPlayerProps {
   onComplete?: () => void;
 }
 
+/**
+ * Renders a video inside a Card with overlay controls for play/pause, progress seek, volume (including mute toggle) and fullscreen.
+ *
+ * @param videoUrl - Source URL for the video to play.
+ * @param onComplete - Optional callback invoked once when playback reaches 90% of the video's duration.
+ * @returns The component's JSX element containing the video and its controls.
+ */
 export function VideoPlayer({ videoUrl, onComplete }: VideoPlayerProps) {
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [volume, setVolume] = React.useState(1);

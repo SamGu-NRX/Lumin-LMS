@@ -12,6 +12,15 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GraduationCap } from "lucide-react";
 
+/**
+ * Render the student dashboard page by fetching the current user, assignments, session progress, and sessions, then composing UI data and components; redirects to `/login` if no authenticated user is found.
+ *
+ * This server component aggregates Supabase authentication and Prisma-backed dashboard data, transforms it for the UI (todo items, course progress, session list), and returns the rendered dashboard layout.
+ *
+ * @returns A React element representing the student dashboard page.
+ * @throws Error if Supabase returns an error fetching the user session.
+ * @throws Any error thrown while querying the database (Prisma) for assignments, session progress, or sessions.
+ */
 export default async function DashboardPage() {
   // (1) Supabase Auth Check
   const supabase = await createClient();

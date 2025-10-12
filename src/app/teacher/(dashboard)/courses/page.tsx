@@ -13,7 +13,13 @@ export const metadata: Metadata = {
   description: "Manage your courses in the AI Bootcamp",
 }
 
-// This is your main entry point (Server Component)
+/**
+ * Server component that fetches course data and renders the CoursesClient inside a Suspense boundary with a loading skeleton fallback.
+ *
+ * The fetched courses are passed to the client component via the `serverCourses` prop.
+ *
+ * @returns A React element that wraps `CoursesClient` in a `Suspense` boundary with a skeleton fallback while the client UI is preparing.
+ */
 export default async function CoursesPage() {
   // Fetch data on the server side via Prisma + Supabase
   const courses = await getCourses()

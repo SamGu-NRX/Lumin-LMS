@@ -12,6 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Lock, CheckCircle2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
+/**
+ * Render the session page with video, exit ticket, and discussion, while tracking and reflecting the user's progress.
+ *
+ * Fetches the current user and session data, initializes progress state (video completed, exit ticket completed, discussion unlocked),
+ * persists session progress when the exit ticket is passed, and allows authenticated users to post to the session discussion.
+ *
+ * @returns The session page JSX element
+ */
 export default function SessionPage() {
   const params = useParams();
   const [session, setSession] = React.useState<any>(null);
