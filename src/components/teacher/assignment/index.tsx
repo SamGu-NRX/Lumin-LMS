@@ -24,6 +24,16 @@ interface AssignmentsClientProps {
   serverSubmissions?: Submission[]; // optional if you pass them in
 }
 
+/**
+ * Render a client-side assignments management UI with filtering, sorting, and modal dialogs.
+ *
+ * Displays a searchable, filterable, and sortable grid of assignment cards and provides
+ * create, edit, view, and grade flows backed by local state (no server mutations).
+ *
+ * @param serverAssignments - Initial list of assignments provided by the server
+ * @param serverSubmissions - Optional initial list of submissions; defaults to an empty array
+ * @returns The AssignmentsClient React component UI
+ */
 export default function AssignmentsClient({
   serverAssignments,
   serverSubmissions = []

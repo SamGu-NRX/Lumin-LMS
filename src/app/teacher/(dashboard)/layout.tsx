@@ -1,6 +1,12 @@
 import { Sidebar } from '@/components/teacher/Sidebar'
 import { Header } from '@/components/teacher/Header'
 
+/**
+ * Layout component that composes the teacher sidebar and header and provides a scrollable content area.
+ *
+ * @param children - Content to render inside the layout's main scrollable container
+ * @returns The layout element containing the Sidebar, Header, and a padded main area that hosts `children`
+ */
 export default function TeacherDashboardLayout({
   children,
 }: {
@@ -20,4 +26,3 @@ export default function TeacherDashboardLayout({
     </div>
   )
 }
-

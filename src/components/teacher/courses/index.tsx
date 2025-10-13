@@ -28,6 +28,12 @@ interface CoursesClientProps {
   serverCourses: Course[]
 }
 
+/**
+ * Client-side Courses management component that provides filtering, sorting, viewing, and in-memory CRUD for a list of courses.
+ *
+ * @param serverCourses - Initial list of courses used to seed the client-side state
+ * @returns The rendered CoursesClient React element (the courses management UI)
+ */
 export default function CoursesClient({ serverCourses }: CoursesClientProps) {
   // Local state
   const [courses, setCourses] = useState<Course[]>(serverCourses)

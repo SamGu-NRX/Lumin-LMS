@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   description: "Forum page for user discussions",
 }
 
+/**
+ * Server component that fetches forum posts and renders the forum UI inside a Suspense boundary with an animated loading fallback.
+ *
+ * @returns A JSX element containing a Suspense-wrapped ForumClient initialized with server-fetched posts and an animated LoadingSkeleton fallback.
+ */
 export default async function ForumPage() {
   // Fetch your data on the server side
   const posts = await getForumPosts()

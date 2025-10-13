@@ -8,6 +8,14 @@ import {
   GraduationCap 
 } from "lucide-react";
 
+/**
+ * Renders a responsive grid of four statistic cards for a course.
+ *
+ * Each card displays a title, an icon, a numeric value (safely read from `courseData` with a fallback of `0`), and a short description.
+ *
+ * @param courseData - Object containing optional arrays `enrollments`, `sessions`, `assignments`, and `submissions`; each array's first element may include a `count` number used for the corresponding stat.
+ * @returns A JSX element containing the grid of statistic cards: Total Students, Total Sessions, Assignments, and Submissions.
+ */
 export function TeacherStats({ courseData }) {
   const stats = [
     {

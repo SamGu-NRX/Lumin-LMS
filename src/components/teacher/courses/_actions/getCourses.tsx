@@ -3,7 +3,13 @@ import { createClient } from "@/lib/supabase/server"
 import { Course } from ".."
 
 
-// Example server action for fetching courses
+/**
+ * Fetches all courses from the database and returns them formatted for frontend consumption.
+ *
+ * Retrieves courses ordered by title ascending and maps each record to the Course shape expected by consuming components.
+ *
+ * @returns An array of Course objects with fields: id, title, description, bootcampName, session, cohort, students, and progress.
+ */
 export async function getCourses(): Promise<Course[]> {
   // For example, if you have a `courses` table in Prisma:
   // (Pseudo-code, adapt to your schema)

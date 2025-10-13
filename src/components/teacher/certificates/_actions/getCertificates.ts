@@ -4,8 +4,14 @@ import { createClient } from '@/lib/supabase/server';
 import { CertificateItem, CertificateStatus } from '..';
 
 /**
- * Example server action for fetching Certificates from Prisma.
- * Optionally check the user session via Supabase if needed.
+ * Fetches certificates from the database and returns them mapped to the `CertificateItem` shape.
+ *
+ * Each returned item includes the certificate `id`, `studentName` (falls back to `"Unknown Student"` when no student is associated),
+ * `certificateUrl` (if present), `issueDate` and `expirationDate` as ISO strings (expiration may be `undefined`),
+ * `status`, and `gradeAtCompletion` (if present).
+ *
+ * @returns An array of certificate items with fields: `id`, `studentName`, `certificateUrl` (optional), `issueDate` (ISO string),
+ * `expirationDate` (ISO string or `undefined`), `status`, and `gradeAtCompletion` (optional).
  */
 export async function getCertificates(): Promise<CertificateItem[]> {
   // Optional: create Supabase client for session checks

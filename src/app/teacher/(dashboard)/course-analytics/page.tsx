@@ -50,6 +50,11 @@ const courseAnalytics: CourseAnalytics[] = [
   }
 ]
 
+/**
+ * Renders the Course Analytics page with a course selector, KPI summary cards, a responsive performance bar chart, and additional metric cards.
+ *
+ * @returns The React element for the Course Analytics page.
+ */
 export default function CourseAnalyticsPage() {
   const [selectedCourse, setSelectedCourse] = useState<CourseAnalytics>(courseAnalytics[0])
 
@@ -125,4 +130,3 @@ export default function CourseAnalyticsPage() {
     </div>
   )
 }
-

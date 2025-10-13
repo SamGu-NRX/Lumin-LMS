@@ -10,6 +10,11 @@ import { CourseOverview } from "@/components/teacher/CourseOverview";
 import { TeacherTabs } from "@/components/teacher/TeacherTabs";
 import { DashboardSkeleton } from "@/components/teacher/DashboardSkeleton";
 
+/**
+ * Render the teacher dashboard page, redirecting unauthenticated users to sign-in and non-teacher users to the general dashboard while loading the teacher's course overview.
+ *
+ * @returns The page's JSX: a loading skeleton while data is being fetched, or the teacher dashboard layout containing the header, stats, course overview, and tabs once data has loaded.
+ */
 export default function TeacherDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [courseData, setCourseData] = useState(null);

@@ -2,6 +2,14 @@
 
 import { motion } from "framer-motion"
 
+/**
+ * Renders a responsive animated loading skeleton for a students dashboard.
+ *
+ * Displays a header-like skeleton bar followed by a grid of six card-shaped skeletons
+ * with multiple placeholder lines and two action placeholders per card.
+ *
+ * @returns A JSX element containing the animated skeleton layout
+ */
 export default function LoadingSkeleton() {
   const skeletonItems = Array.from({ length: 6 }, (_, i) => i)
 

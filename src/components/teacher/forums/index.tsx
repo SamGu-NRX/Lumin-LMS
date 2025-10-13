@@ -24,6 +24,13 @@ export interface ForumPost {
   isLocked: boolean;
 }
 
+/**
+ * Renders an interactive forum UI with filtering, sorting, three presentation modes (card, list, table),
+ * and a modal viewer for individual posts.
+ *
+ * @param serverPosts - Initial list of forum posts used to populate component state
+ * @returns The forum client UI as a React element
+ */
 export default function ForumClient({ serverPosts }: ForumClientProps) {
   const [posts, setPosts] = useState<ForumPost[]>(serverPosts);
   const [currentPost, setCurrentPost] = useState<ForumPost | null>(null);

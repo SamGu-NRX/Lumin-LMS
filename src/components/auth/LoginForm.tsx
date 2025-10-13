@@ -28,6 +28,15 @@ interface LoginFormProps {
   handleOAuth: (providerName: string) => void;
 }
 
+/**
+ * Render the login form UI with client-side validation, submit handling, and OAuth options.
+ *
+ * @param className - Optional additional CSS class names to apply to the outer container.
+ * @param loading - Whether the submit action is in a loading state; toggles the submit button.
+ * @param onSubmit - Called with validated login form values when the user submits the form.
+ * @param handleOAuth - Called with the provider name when an OAuth option is selected.
+ * @returns The rendered login form component (JSX element).
+ */
 function LoginForm({
   className,
   loading = false,

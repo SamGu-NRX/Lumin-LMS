@@ -25,6 +25,12 @@ interface CertificatesClientProps {
   serverCertificates: Certificate[];
 }
 
+/**
+ * Render a certificates dashboard with search, course/status filters, sorting, view modes (card/list/table), and a modal to view certificate details.
+ *
+ * @param serverCertificates - Initial array of certificates used to populate and initialize the dashboard state
+ * @returns The React element representing the certificates dashboard
+ */
 export default function CertificatesClient({
   serverCertificates
 }: CertificatesClientProps) {
