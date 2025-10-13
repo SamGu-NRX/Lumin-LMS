@@ -1,152 +1,209 @@
-// 'use client'
-
-// import { useEffect, useState } from 'react'
-// import { createClient } from '@/lib/supabase/client'
-// import { TodoItem, CourseProgress, Session } from '@/lib/types/dashboard'
-// import { TodoList } from '@/components/dashboard/todo-list'
-// import { CourseProgressCard } from '@/components/dashboard/course-progress'
-// import { SessionList } from '@/components/dashboard/session-list'
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-// import { Skeleton } from '@/components/ui/skeleton'
-
-// export default function DashboardPage() {
-//   const [loading, setLoading] = useState(true)
-//   const [todoItems, setTodoItems] = useState<TodoItem[]>([])
-//   const [courseProgress, setCourseProgress] = useState<CourseProgress>({
-//     completed: 0,
-//     total: 0,
-//     nextSession: { title: '', id: '' }
-//   })
-//   const [sessions, setSessions] = useState<Session[]>([])
-//   const supabase = createClient()
-
-//   useEffect(() => {
-//     const loadDashboardData = async () => {
-//       const { data: { user } } = await supabase.auth.getUser()
-//       if (!user) return
-
-//       // Fetch todo items (upcoming assignments and sessions)
-//       const { data: assignments } = await supabase
-//         .from('assignments')
-//         .select('id, title, due_date, type, submissions(status)')
-//         .order('due_date', { ascending: true })
-//         .limit(5)
-
-//       // Fetch course progress
-//       const { data: progress } = await supabase
-//         .from('session_progress')
-//         .select('session_id')
-//         .eq('student_id', user.id)
-
-//       // Fetch sessions
-//       const { data: sessionData } = await supabase
-//         .from('sessions')
-//         .select('*')
-//         .order('sequence_order', { ascending: true })
-
-//       if (assignments) {
-//         setTodoItems(assignments.map(assignment => ({
-//           id: assignment.id,
-//           title: assignment.title,
-//           dueDate: assignment.due_date,
-//           type: 'assignment',
-//           status: assignment.submissions?.[0]?.status || 'pending'
-//         })))
-//       }
-
-//       if (progress && sessionData) {
-//         const completedCount = progress.length
-//         const totalCount = sessionData.length
-//         const nextIncompleteSession = sessionData.find(session =>
-//           !progress.some(p => p.session_id === session.id)
-//         )
-
-//         setCourseProgress({
-//           completed: completedCount,
-//           total: totalCount,
-//           nextSession: nextIncompleteSession
-//             ? { title: nextIncompleteSession.title, id: nextIncompleteSession.id }
-//             : { title: 'All sessions completed!', id: '' }
-//         })
-
-//         setSessions(sessionData.map((session, index) => ({
-//           id: session.id,
-//           title: session.title,
-//           description: session.description || '',
-//           videoUrl: session.video_url,
-//           isCompleted: progress.some(p => p.session_id === session.id),
-//           isLocked: index > 0 && !progress.some(p => p.session_id === sessionData[index - 1].id)
-//         })))
-//       }
-
-//       setLoading(false)
-//     }
-
-//     loadDashboardData()
-//   }, [])
-
-//   if (loading) {
-//     return (
-//       <div className="space-y-6">
-//         <Skeleton className="h-12 w-[250px]" />
-//         <div className="grid gap-6 md:grid-cols-2">
-//           {[1, 2].map((i) => (
-//             <Skeleton key={i} className="h-[200px]" />
-//           ))}
-//         </div>
-//       </div>
-//     )
-//   }
-
-//   return (
-//     <div className="space-y-8">
-//       <div className="grid gap-6 md:grid-cols-2">
-//         <CourseProgressCard progress={courseProgress} />
-//         <div className="space-y-4">
-//           <h3 className="font-semibold">Upcoming Tasks</h3>
-//           <TodoList items={todoItems} />
-//         </div>
-//       </div>
-
-//       <Tabs defaultValue="sessions" className="space-y-4">
-//         <TabsList>
-//           <TabsTrigger value="sessions">Sessions</TabsTrigger>
-//           <TabsTrigger value="assignments">Assignments</TabsTrigger>
-//         </TabsList>
-//         <TabsContent value="sessions" className="space-y-4">
-//           <SessionList sessions={sessions} />
-//         </TabsContent>
-//         <TabsContent value="assignments">
-//           <p className="text-muted-foreground text-center py-8">
-//             Assignment view coming soon...
-//           </p>
-//         </TabsContent>
-//       </Tabs>
-//     </div>
-//   )
-// }
-
-// (Server Component Example)
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { db } from "@/lib/prisma";
 
+import { TodoItem, CourseProgress } from "@/lib/types/dashboard";
+
+import { CourseProgressCard } from "@/components/dashboard/course-progress";
+import { SessionList } from "@/components/dashboard/session-list";
+import { TodoList } from "@/components/dashboard/todo-list";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GraduationCap } from "lucide-react";
+
+/**
+ * Render the student dashboard page by fetching the current user, assignments, session progress, and sessions, then composing UI data and components; redirects to `/login` if no authenticated user is found.
+ *
+ * This server component aggregates Supabase authentication and Prisma-backed dashboard data, transforms it for the UI (todo items, course progress, session list), and returns the rendered dashboard layout.
+ *
+ * @returns A React element representing the student dashboard page.
+ * @throws Error if Supabase returns an error fetching the user session.
+ * @throws Any error thrown while querying the database (Prisma) for assignments, session progress, or sessions.
+ */
 export default async function DashboardPage() {
+  // (1) Supabase Auth Check
   const supabase = await createClient();
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser();
 
-  // Now let's query our RLS-protected "users" table
-  // If RLS says "id = auth.uid()", user will only get their row
-  const { data: userRows, error } = await supabase.from("users").select("*");
-
-  if (error) {
-    return <p>Error: {error.message}</p>;
+  // No logged-in user → redirect
+  if (!user) {
+    redirect("/login");
+  }
+  // Error retrieving user session
+  if (userError && user) {
+    console.error("Error fetching existing user session:", userError);
+    throw new Error(userError.message);
   }
 
+  // (2) Fetch “assignments” + “submissions” status using Prisma
+  //     - This requires the “Assignment” & “Submission” models from your schema
+  let assignments = [];
+  try {
+    assignments = await db.assignment.findMany({
+      include: {
+        submissions: {
+          // Only want the status field for the first submission belonging to this user?
+          where: {
+            studentId: user.id,
+          },
+          select: { status: true },
+        },
+      },
+      orderBy: {
+        dueDate: "asc",
+      },
+      take: 5,
+    });
+  } catch (err) {
+    console.error("Error fetching assignments via Prisma:", err);
+    throw err;
+  }
+
+  // (3) Fetch “session progress” for the logged-in student
+  //     - Prisma “SessionProgress” model.
+  let progress = [];
+  try {
+    progress = await db.sessionProgress.findMany({
+      where: {
+        studentId: user.id,
+      },
+      select: {
+        sessionId: true,
+      },
+    });
+  } catch (err) {
+    console.error("Error fetching session progress via Prisma:", err);
+    throw err;
+  }
+
+  // (4) Fetch “sessions” from DB
+  let sessionData = [];
+  try {
+    sessionData = await db.session.findMany({
+      orderBy: {
+        sequenceOrder: "asc",
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        videoUrl: true,
+        sequenceOrder: true,
+      },
+    });
+  } catch (err) {
+    console.error("Error fetching sessions via Prisma:", err);
+    throw err;
+  }
+
+  // (5) Transform data for UI
+  // (5a) Build the “todoItems” array from the assignment data
+  const todoItems: TodoItem[] = assignments.map((assignment) => {
+    const firstSubmission = assignment.assignmentStatus[0];
+    return {
+      id: assignment.id,
+      title: assignment.title,
+      dueDate: assignment.dueDate?.toISOString() || "",
+      type: "assignment",
+      status: assignment.assignmentStatus,
+    };
+  });
+
+  // (5b) Build the course progress
+  //      completed = number of sessionProgress rows for this user
+  //      total = total sessions in the DB
+  //      nextSession = first session that is not in user’s progress
+  let courseProgress: CourseProgress = {
+    completed: progress.length,
+    total: sessionData.length,
+    nextSession: { title: "", id: "" },
+  };
+
+  const nextIncompleteSession = sessionData.find(
+    (session) => !progress.some((p) => p.sessionId === session.id),
+  );
+
+  if (nextIncompleteSession) {
+    courseProgress.nextSession = {
+      title: nextIncompleteSession.title,
+      id: nextIncompleteSession.id,
+    };
+  } else {
+    courseProgress.nextSession = {
+      title: "All sessions completed!",
+      id: "",
+    };
+  }
+
+  // (5c) Sessions in UI-friendly shape
+  const sessions = sessionData.map((session, index) => {
+    const isCompleted = progress.some((p) => p.sessionId === session.id);
+    // For “isLocked,” you might want to check if the previous session is completed, etc.
+    const isLocked =
+      index > 0 &&
+      !progress.some((p) => p.sessionId === sessionData[index - 1].id);
+
+    return {
+      id: session.id,
+      title: session.title,
+      description: session.description || "",
+      videoUrl: session.videoUrl,
+      isCompleted,
+      isLocked,
+    };
+  });
+
+  // Debugging logs
+  console.log("==== DASHBOARD DATA (PRISMA + SUPABASE AUTH) ====");
+  console.log("User ID:", user.id);
+  console.log("Assignments:", assignments);
+  console.log("Session progress:", progress);
+  console.log("Sessions:", sessionData);
+  console.log("Todo items:", todoItems);
+  console.log("Course progress:", courseProgress);
+  console.log("================================================");
+
+  // (6) Render final UI
   return (
-    <div>
-      <h1>Welcome, {user?.email}</h1>
-      <pre>{JSON.stringify(userRows, null, 2)}</pre>
+    <div className="container mx-auto p-6">
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Student Dashboard</h1>
+        <Button variant="outline" size="sm" className="gap-2">
+          <GraduationCap className="h-4 w-4" />
+          View Course Catalog
+        </Button>
+      </div>
+
+      <div className="mb-8 grid gap-6 md:grid-cols-2">
+        <CourseProgressCard progress={courseProgress} />
+        <Card className="p-6">
+          <h3 className="mb-4 font-semibold">Upcoming Tasks</h3>
+          <TodoList items={todoItems} />
+        </Card>
+      </div>
+
+      <Tabs defaultValue="sessions" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="sessions">Sessions</TabsTrigger>
+          <TabsTrigger value="assignments">Assignments</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="sessions" className="space-y-4">
+          <SessionList sessions={sessions} />
+        </TabsContent>
+
+        <TabsContent value="assignments">
+          <Card className="p-6">
+            <p className="py-8 text-center text-muted-foreground">
+              Assignment view coming soon...
+            </p>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

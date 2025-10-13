@@ -8,9 +8,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-////////////////////////////////////////////
-// ENUMS
-////////////////////////////////////////////
 enum Role {
   student
   teacher
@@ -29,9 +26,6 @@ enum SubmissionStatus {
   in_review
 }
 
-////////////////////////////////////////////
-// MODEL: User
-////////////////////////////////////////////
 model User {
   id              String   @id @default(uuid()) @db.Uuid
   email           String   @unique
@@ -45,17 +39,15 @@ model User {
   updatedAt       DateTime @updatedAt
 
   // RELATIONS
-  Submissions          Submission[]          // 1-to-many
-  ProgressRecords      UserSessionsProgress[] 
-  Certificates         Certificate[]         
-  ActivityLogs         ActivityLog[]
+  enrolledCourses     CourseEnrollment[]
+  submissions         Submission[]
+  sessionProgress     SessionProgress[]
+  certificates        Certificate[]
+  activityLogs        ActivityLog[]
 
-  @@map("users")  // If you want the table name to be "users"
+  @@map("users")
 }
 
-////////////////////////////////////////////
-// MODEL: Course
-////////////////////////////////////////////
 model Course {
   id                String   @id @default(uuid()) @db.Uuid
   title             String
@@ -63,62 +55,102 @@ model Course {
   thumbnailImageUrl String?
   startDate         DateTime?
   endDate           DateTime?
+  isPublished       Boolean  @default(false)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
   // RELATIONS
-  Sessions      Session[]
-  Announcements Announcement[]
-  Certificates  Certificate[]
+  enrollments    CourseEnrollment[]
+  sessions       Session[]
+  announcements  Announcement[]
+  certificates   Certificate[]
 
   @@map("courses")
 }
 
-////////////////////////////////////////////
-// MODEL: Session (Lecture)
-////////////////////////////////////////////
+model CourseEnrollment {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  courseId  String   @db.Uuid
+  enrolledAt DateTime @default(now())
+  status    String   @default("active") // active, completed, dropped
+  progress  Float    @default(0) // Percentage of course completed
+
+  // RELATIONS
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@map("course_enrollments")
+}
+
 model Session {
   id                   String   @id @default(uuid()) @db.Uuid
   courseId             String   @db.Uuid
   title                String
   description          String?
+  objectives           String[]
   videoUrl             String?
-  sequenceOrder        Int      @default(1) // Enforce >0 in your app or custom SQL
+  exitTicket           ExitTicket?
+  resources            Resource[]
+  sequenceOrder        Int      @default(1)
+
+
   isLockedByDefault    Boolean  @default(true)
+  durationMinutes      Int      @default(60)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
   // RELATIONS
-  Course               Course          @relation(fields: [courseId], references: [id], onDelete: Restrict)
-  Assignments          Assignment[]
-  ProgressRecords      UserSessionsProgress[]
+  course               Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  assignments          Assignment[]
+  progressRecords      SessionProgress[]
 
   @@map("sessions")
 }
 
-////////////////////////////////////////////
-// MODEL: UserSessionsProgress
-////////////////////////////////////////////
-model UserSessionsProgress {
+model ExitTicketQuestion {
+  id            Int       @id @default(autoincrement())
+  exitTicket    ExitTicket @relation(fields: [exitTicketId], references: [id])
+  exitTicketId  Int
+  questionType  String
+  questionText  String
+  options       String[]  // Nullable array for multiple-choice, true-false questions
+  correctAnswer Int?      // Nullable integer for correct answer index
+}
+
+
+model Resource {
+  id        Int      @id @default(autoincrement())
+  session   Session  @relation(fields: [sessionId], references: [id])
+  sessionId String
+  title     String
+  type      String
+  link      String
+}
+
+model SessionProgress {
   id           String    @id @default(uuid()) @db.Uuid
   studentId    String    @db.Uuid
   sessionId    String    @db.Uuid
   isCompleted  Boolean   @default(false)
   completedAt  DateTime?
+  lastAccessedAt DateTime @default(now())
 
   // RELATIONS
-  Student      User      @relation(fields: [studentId], references: [id], onDelete: Restrict)
-  Session      Session   @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  student      User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  session      Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
-  // CONSTRAINTS
-  @@unique([studentId, sessionId]) // one progress record per (student, session)
-
-  @@map("user_sessions_progress")
+  @@unique([studentId, sessionId])
+  @@map("session_progress")
 }
 
-////////////////////////////////////////////
-// MODEL: Assignment
-////////////////////////////////////////////
+model ExitTicket {
+  id         Int       @id @default(autoincrement())
+  session    Session   @relation(fields: [sessionId], references: [id])
+  sessionId  String    @unique
+  questions  ExitTicketQuestion[]
+}
 model Assignment {
   id              String          @id @default(uuid()) @db.Uuid
   sessionId       String          @db.Uuid
@@ -133,79 +165,65 @@ model Assignment {
   updatedAt       DateTime        @updatedAt
 
   // RELATIONS
-  Session         Session         @relation(fields: [sessionId], references: [id], onDelete: Restrict)
-  Submissions     Submission[]
-  Questions       AssignmentQuestion[]
+  session         Session         @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  submissions     Submission[]
+  questions       AssignmentQuestion[]
 
   @@map("assignments")
 }
 
-////////////////////////////////////////////
-// MODEL: AssignmentQuestion (Optional)
-////////////////////////////////////////////
 model AssignmentQuestion {
-  id             String                   @id @default(uuid()) @db.Uuid
-  assignmentId   String                   @db.Uuid
+  id             String   @id @default(uuid()) @db.Uuid
+  assignmentId   String   @db.Uuid
   questionText   String
-  questionOrder  Int                      @default(1)
-  createdAt      DateTime                 @default(now())
-  updatedAt      DateTime                 @updatedAt
+  questionOrder  Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // RELATIONS
-  Assignment     Assignment               @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
-  Options        AssignmentQuestionOption[]
-  SubmissionAnswers SubmissionAnswers[]
+  assignment     Assignment               @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  options        AssignmentQuestionOption[]
+  answers        SubmissionAnswer[]
 
   @@map("assignment_questions")
 }
 
-////////////////////////////////////////////
-// MODEL: AssignmentQuestionOption (Optional)
-////////////////////////////////////////////
 model AssignmentQuestionOption {
   id          String   @id @default(uuid()) @db.Uuid
-  questionId  String    @db.Uuid
+  questionId  String   @db.Uuid
   optionText  String
   isCorrect   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // RELATIONS
-  Question  AssignmentQuestion @relation(fields: [questionId], references: [id], onDelete: Restrict)
-  SubmissionAnswers SubmissionAnswers[] // Add this line
+  question    AssignmentQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers     SubmissionAnswer[]
 
-  @@unique([questionId, optionText])
   @@map("assignment_question_options")
 }
 
-////////////////////////////////////////////
-// MODEL: Submission
-////////////////////////////////////////////
 model Submission {
-  id                    String           @id @default(uuid()) @db.Uuid
-  assignmentId          String           @db.Uuid
-  studentId             String           @db.Uuid
-  submittedAt           DateTime?
-  fileUrl               String?
-  status                SubmissionStatus @default(pending)
-  grade                 Float?
-  feedback              String?
-  multipleChoiceAnswers Json?
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
+  id              String           @id @default(uuid()) @db.Uuid
+  assignmentId    String          @db.Uuid
+  studentId       String          @db.Uuid
+  submittedAt     DateTime?
+  fileUrl         String?
+  status          SubmissionStatus @default(pending)
+  grade           Float?
+  feedback        String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   // RELATIONS
-  Assignment      Assignment  @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
-  Student         User        @relation(fields: [studentId], references: [id], onDelete: Restrict)
-  SubmissionAnswers SubmissionAnswers[]
+  assignment      Assignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student         User            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  answers         SubmissionAnswer[]
 
   @@map("submissions")
 }
 
-////////////////////////////////////////////
-// MODEL: SubmissionAnswers (Optional)
-////////////////////////////////////////////
-model SubmissionAnswers {
+model SubmissionAnswer {
   id               String   @id @default(uuid()) @db.Uuid
   submissionId     String   @db.Uuid
   questionId       String   @db.Uuid
@@ -213,16 +231,13 @@ model SubmissionAnswers {
   scoreEarned      Float?
 
   // RELATIONS
-  Submission       Submission             @relation(fields: [submissionId], references: [id], onDelete: Restrict)
-  Question         AssignmentQuestion     @relation(fields: [questionId], references: [id], onDelete: Restrict)
-  SelectedOption   AssignmentQuestionOption? @relation(fields: [selectedOptionId], references: [id], onDelete: Restrict)
+  submission       Submission                 @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  question         AssignmentQuestion         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedOption   AssignmentQuestionOption?  @relation(fields: [selectedOptionId], references: [id])
 
   @@map("submission_answers")
 }
 
-////////////////////////////////////////////
-// MODEL: Certificate
-////////////////////////////////////////////
 model Certificate {
   id                  String   @id @default(uuid()) @db.Uuid
   studentId           String   @db.Uuid
@@ -233,18 +248,13 @@ model Certificate {
   createdAt           DateTime @default(now())
 
   // RELATIONS
-  Student    User   @relation(fields: [studentId], references: [id], onDelete: Restrict)
-  Course     Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  student    User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course     Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  // CONSTRAINTS
   @@unique([studentId, courseId])
-
   @@map("certificates")
 }
 
-////////////////////////////////////////////
-// MODEL: Announcement (Optional)
-////////////////////////////////////////////
 model Announcement {
   id         String   @id @default(uuid()) @db.Uuid
   courseId   String   @db.Uuid
@@ -253,23 +263,20 @@ model Announcement {
   postedAt   DateTime @default(now())
 
   // RELATIONS
-  Course     Course   @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@map("announcements")
 }
 
-////////////////////////////////////////////
-// MODEL: ActivityLog (Optional)
-////////////////////////////////////////////
 model ActivityLog {
-  id          String   @id @default(uuid()) @db.Uuid  
-  userId      String?  @db.Uuid
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
   actionType  String
   details     String?
   createdAt   DateTime @default(now())
 
   // RELATIONS
-  User        User?    @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@map("activity_logs")
