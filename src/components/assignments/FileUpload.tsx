@@ -34,6 +34,18 @@ export function FileUpload({
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = React.useState(0);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const uploadIntervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const clearUploadInterval = React.useCallback(() => {
+    if (uploadIntervalRef.current !== null) {
+      clearInterval(uploadIntervalRef.current);
+      uploadIntervalRef.current = null;
+    }
+  }, []);
+
+  // Stop the simulated upload when the component unmounts.
+  React.useEffect(() => clearUploadInterval, [clearUploadInterval]);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -54,8 +66,9 @@ export function FileUpload({
       return false;
     }
 
-    // Check file type
-    const fileType = `.${file.name.split(".").pop()?.toLowerCase()}`;
+    // Check file type — extract the real extension; files without one are rejected.
+    const lastDotIndex = file.name.lastIndexOf(".");
+    const fileType = lastDotIndex > 0 ? file.name.slice(lastDotIndex).toLowerCase() : "";
     if (!acceptedTypes.includes(fileType)) {
       setError(`File type must be: ${acceptedTypes.join(", ")}`);
       return false;
@@ -69,6 +82,8 @@ export function FileUpload({
     e.stopPropagation();
     setDragActive(false);
 
+    if (isSubmitting) return;
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
       if (validateFile(file)) {
@@ -81,6 +96,9 @@ export function FileUpload({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
+
+    if (isSubmitting) return;
+
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (validateFile(file)) {
@@ -92,16 +110,28 @@ export function FileUpload({
   };
 
   const simulateUpload = () => {
+    // Cancel any in-flight simulated upload so intervals never stack.
+    clearUploadInterval();
     setUploadProgress(0);
-    const interval = setInterval(() => {
+    uploadIntervalRef.current = setInterval(() => {
       setUploadProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(interval);
+          clearUploadInterval();
           return 100;
         }
         return prev + 10;
       });
     }, 200);
+  };
+
+  const handleRemoveFile = () => {
+    clearUploadInterval();
+    setUploadProgress(0);
+    setSelectedFile(null);
+    // Reset the input so re-selecting the same file fires a change event.
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
   };
 
   return (
@@ -117,6 +147,7 @@ export function FileUpload({
       onDrop={handleDrop}
     >
       <input
+        ref={inputRef}
         type="file"
         className="hidden"
         accept={acceptedTypes.join(",")}
@@ -134,7 +165,7 @@ export function FileUpload({
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setSelectedFile(null)}
+              onClick={handleRemoveFile}
               disabled={isSubmitting}
             >
               <X className="h-4 w-4" />

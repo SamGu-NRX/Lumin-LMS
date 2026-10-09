@@ -57,6 +57,15 @@ export function MultipleChoice({
     onSubmit(answers);
   };
 
+  // Render an empty state instead of crashing when there are no questions.
+  if (questions.length === 0) {
+    return (
+      <Card className="p-6">
+        <p className="text-sm text-muted-foreground">No questions available.</p>
+      </Card>
+    );
+  }
+
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
   return (
